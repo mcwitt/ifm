@@ -1,0 +1,19 @@
+srcdir = @srcdir@
+VPATH = $(srcdir)
+
+INC = -I. -I$(srcdir)
+CFLAGS = -std=c99
+LDFLAGS = -lgsl -lgslcblas -lm
+
+# optimization
+CFLAGS += -O3
+
+# for debugging
+#CFLAGS += -fsanitize=address
+
+CFLAGS += -DPERIODIC=1
+
+wolff: lattice.o state.o update.o meas_basic.o
+
+clean:
+	$(RM) *.o
