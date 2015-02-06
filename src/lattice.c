@@ -1,4 +1,5 @@
 #include "lattice.h"
+#include "neighbors.h"
 #include <string.h>
 
 /* define dimensions of the lattice */
@@ -14,31 +15,6 @@ static void init_strides(uint_ord_N *stride)
 
     for (d = LT_D-1; d > 0; d--)
         stride[d-1] = lt_shape[d] * stride[d];
-}
-
-static void init_neighbors(int *axis, int diff[][LT_LMAX])
-{
-    /* TODO free BCs */
-    int d, l;
-
-    /* forward neighbors */
-
-    for (d = 0; d < LT_D; d++)
-    {
-        axis[d] = d;
-        for (l = 0; l < lt_shape[d]-1; l++) diff[d][l] = 1;
-        diff[d][lt_shape[d]-1] = 1 - lt_shape[d];
-    }
-
-    /* backward neighbors */
-
-    for (d = 0; d < LT_D; d++)
-    {
-        int n = d + LT_D;
-        axis[n] = d;
-        diff[n][0] = lt_shape[d] - 1;
-        for (l = 1; l < lt_shape[d]; l++) diff[n][l] = -1;
-    }
 }
 
 static void index2coords(uint_ord_N i, uint_ord_N const *stride, int *x)
@@ -80,7 +56,7 @@ int lattice_neighbor(lattice const *l, int n,
     int axis = l->axis[n],
         diff = l->diff[n][site->x[axis]];
 
-#if (! PERIODIC)
+#if (BC != BC_PERIODIC)
     if (diff == 0) return 0;   /* no neighbor */
 #endif
     neighbor->i = site->i + diff * l->stride[axis];

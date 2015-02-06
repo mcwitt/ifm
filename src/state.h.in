@@ -4,7 +4,7 @@
 #include "lattice.h"
 #include "spin.h"
 
-#define MAX_STACK_SIZE LT_N     /* conservative value */
+#define MAX_STACK_SIZE @MAX_STACK_SIZE@
 
 typedef struct
 {

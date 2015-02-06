@@ -1,0 +1,8 @@
+#include "lattice.h"
+
+#define BC_PERIODIC 0
+#define BC_FREE 1
+
+#define BC @BC@
+
+void init_neighbors(int *axis, int diff[][LT_LMAX]);

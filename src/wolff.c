@@ -63,10 +63,10 @@ int main(int argc, char *argv[])
     RNG_SEED(rand, seed);
 
 #ifndef DEBUG
-    printf("%9s %4s " \
+    printf("%9s %6s " \
            "%12s %12s " \
            "%12s %12s\n",
-           "T", "b",
+           "Temp", "Stage",
            "M2", "M4",
            "C", "C2");
 #endif
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
             measure(&l, p, dt, rand, &s, &meas);
 
 #ifndef DEBUG
-            printf("%9g %4d " \
+            printf("%9g %6d " \
                    "%12g %12g " \
                    "%12g %12g\n",
                     T, i,

@@ -19,13 +19,8 @@ void update(lattice const *l, double p, rng *rand, state *s)
         /* loop over neighbors of site */
         for (n = 0; n < LT_Z; n++)
         {
-            /* TODO make this more efficient:
-             * neighbor coords aren't needed until we add to cluster */
-            /* top <- nth neighbor */
-            int is_neighbor = lattice_neighbor(l, n, &site, top);
-            if (! is_neighbor) continue;
-
-            if ((s->spin[top->i] == s->cluster_spin) \
+            if (lattice_neighbor(l, n, &site, top) \
+                && (s->spin[top->i] == s->cluster_spin) \
                 && (RNG_COIN_TOSS(rand, p)))
             {
                 /*

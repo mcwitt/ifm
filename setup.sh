@@ -23,11 +23,13 @@ function getp {
 # PARAMETERS AND DEFAULT VALUES
 
 getp srcdir $srcdir
+getp BC BC_PERIODIC
 getp LT_LMAX 64
 getp LT_D 2
 getp LOG_TIME_THERM 3
 getp LOG_TIME_MEAS 10
 getp UPDATES_PER_STEP 1
+getp MAX_STACK_SIZE $((LT_LMAX**LT_D))
 getp RNG RNG_MT19937
 
 # DERIVED CONSTANTS
