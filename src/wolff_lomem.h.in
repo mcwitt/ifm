@@ -20,6 +20,6 @@ void wolff_init(wolff_lomem *w);
 void wolff_free(wolff_lomem *w);
 
 void wolff_update(lattice const *l, double p,
-                  rng *rand, wolff_lomem *w, state *s);
+                  rng_state *rng, wolff_lomem *w, state *s);
 
 #endif

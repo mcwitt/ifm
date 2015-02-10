@@ -1,5 +1,11 @@
 #include "state.h"
+
+#ifndef LOMEM
 #include "wolff.h"
+#else
+#include "wolff_lomem.h"
+typedef wolff_lomem wolff;
+#endif
 
 #define NUM_MOMENTS 2
 
@@ -7,8 +13,10 @@ enum
 {
     M2 = 0,
     C,
+#ifndef LOMEM
     E,
     EM2,
+#endif
 
     NUM_AVERAGES
 };

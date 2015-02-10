@@ -7,7 +7,7 @@
 typedef struct
 {
     ising_spin *spin;
-    int magnetization;
+    int64_t magnetization;
 }
 state;
 

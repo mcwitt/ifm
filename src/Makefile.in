@@ -1,9 +1,9 @@
 srcdir = @srcdir@
-VPATH = $(srcdir)
+dsfmt_dir = $(srcdir)/dSFMT-src-2.2.3
+VPATH = $(srcdir):$(dsfmt_dir)
 
-INC = -I. -I$(srcdir)
-CFLAGS += $(INC) -std=c99
-LDFLAGS = -lgsl -lgslcblas -lm
+CFLAGS += -std=c99 -I. -I$(srcdir)
+LDFLAGS = -lm
 
 # optimization
 CFLAGS += -O3
@@ -11,15 +11,26 @@ CFLAGS += -O3
 # for debugging
 #CFLAGS += -fsanitize=address
 
-ifm: lattice.o neighbors.o state.o
+RNG = @RNG@
+
+ifeq ($(RNG), RNG_DSFMT)
+CFLAGS += -I$(dsfmt_dir) -DDSFMT_MEXP=19937 -DHAVE_SSE2
+all ifm wolff: dSFMT.o
+else
+LDFLAGS = -lgsl -lgslcblas
+endif
+
+all: ifm
+ifm: lattice.o neighbors.o state.o measure.o
 
 LOMEM = @LOMEM@
+RNG = @RNG@
 
 ifeq ($(LOMEM), 0)
-ifm: wolff.o measure.o
+ifm: wolff.o
 else
 CFLAGS += -DLOMEM
-ifm: wolff_lomem.o measure_lomem.o
+ifm: wolff_lomem.o
 endif
 
 clean:

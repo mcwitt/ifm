@@ -1,6 +1,7 @@
 #include "wolff.h"
 #include "spin.h"
 #include <string.h>
+#include <stdlib.h>
 
 void wolff_init(wolff *w)
 {
@@ -15,13 +16,13 @@ void wolff_free(wolff *w)
 }
 
 void wolff_update(lattice const *l, double p,
-                  rng *rand, wolff *w, state *s)
+                  rng_state *rng, wolff *w, state *s)
 {
     lattice_site site, *top = w->stack;
     ising_spin cluster_spin;
 
     /* pick a random site to seed the cluster */
-    lattice_random_site(l, rand, &site); /* site <- random site */
+    lattice_random_site(l, rng, &site); /* site <- random site */
     cluster_spin = s->spin[site.i];
     w->cluster_size = 0;
 
@@ -48,7 +49,7 @@ void wolff_update(lattice const *l, double p,
             {
                 w->energy += 2;
 
-                if ((! w->flagged[top->i]) && RNG_COIN_TOSS(rand, p))
+                if ((! w->flagged[top->i]) && RNG_COIN_TOSS(rng, p))
                 {
                     /*
                      * add neighbor to the cluster and push it onto the stack so
