@@ -7,7 +7,7 @@
 /* default: L x L x ... x L hypercube */
 int const lt_shape[LT_D] = {[0 ... LT_D-1] = LT_LMAX};
 
-static void init_strides(uint_ord_N *stride)
+static void init_strides(int *stride)
 {
     int d;
 
@@ -17,7 +17,7 @@ static void init_strides(uint_ord_N *stride)
         stride[d-1] = lt_shape[d] * stride[d];
 }
 
-static void index2coords(uint_ord_N i, uint_ord_N const *stride, int *x)
+static void index2coords(int i, int const *stride, int *x)
 {
     int d;
 
@@ -38,14 +38,14 @@ void lattice_init(lattice *l)
     init_neighbors(l->axis, l->diff);
 }
 
-void lattice_coords(lattice const *l, uint_ord_N i, int *x)
+void lattice_coords(lattice const *l, int i, int *x)
 {
     index2coords(i, l->stride, x);
 }
 
 void lattice_random_site(lattice const *l, rng *rand, lattice_site *site)
 {
-    site->i = (uint_ord_N) (LT_N * RNG_RAND_UNIFORM(rand));
+    site->i = (int) (LT_N * RNG_RAND_UNIFORM(rand));
     lattice_coords(l, site->i, site->x);
 }
 

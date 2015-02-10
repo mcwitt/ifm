@@ -2,7 +2,7 @@ srcdir = @srcdir@
 VPATH = $(srcdir)
 
 INC = -I. -I$(srcdir)
-CFLAGS = $(INC) -std=c99
+CFLAGS += $(INC) -std=c99
 LDFLAGS = -lgsl -lgslcblas -lm
 
 # optimization
@@ -11,7 +11,16 @@ CFLAGS += -O3
 # for debugging
 #CFLAGS += -fsanitize=address
 
-wolff: lattice.o neighbors.o state.o update.o meas_basic.o
+ifm: lattice.o neighbors.o state.o
+
+LOMEM = @LOMEM@
+
+ifeq ($(LOMEM), 0)
+ifm: wolff.o measure.o
+else
+CFLAGS += -DLOMEM
+ifm: wolff_lomem.o measure_lomem.o
+endif
 
 clean:
 	$(RM) *.o

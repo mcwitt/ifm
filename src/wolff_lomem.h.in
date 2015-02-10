@@ -1,7 +1,7 @@
 #ifndef WOLFF_H
 #define WOLFF_H
 
-/* Wolff cluster update with online energy measurement */
+/* Wolff cluster update */
 
 #include "lattice.h"
 #include "state.h"
@@ -12,16 +12,14 @@
 typedef struct
 {
     lattice_site *stack;
-    int *flagged;
     int cluster_size;
-    int energy;
 }
-wolff;
+wolff_lomem;
 
-void wolff_init(wolff *w);
-void wolff_free(wolff *w);
+void wolff_init(wolff_lomem *w);
+void wolff_free(wolff_lomem *w);
 
 void wolff_update(lattice const *l, double p,
-                  rng *rand, wolff *w, state *s);
+                  rng *rand, wolff_lomem *w, state *s);
 
 #endif

@@ -1,21 +1,15 @@
-#include "wolff.h"
+#include "wolff_lomem.h"
 #include "spin.h"
-#include <string.h>
 
-void wolff_init(wolff *w)
+void wolff_init(wolff_lomem *w)
 {
     w->stack = malloc(MAX_STACK_SIZE * sizeof *w->stack);
-    w->flagged = calloc(LT_N, sizeof *w->flagged);
 }
 
-void wolff_free(wolff *w)
-{
-    free(w->stack);
-    free(w->flagged);
-}
+void wolff_free(wolff_lomem *w) { free(w->stack); }
 
 void wolff_update(lattice const *l, double p,
-                  rng *rand, wolff *w, state *s)
+                  rng *rand, wolff_lomem *w, state *s)
 {
     lattice_site site, *top = w->stack;
     ising_spin cluster_spin;
@@ -23,15 +17,13 @@ void wolff_update(lattice const *l, double p,
     /* pick a random site to seed the cluster */
     lattice_random_site(l, rand, &site); /* site <- random site */
     cluster_spin = s->spin[site.i];
-    w->cluster_size = 0;
+
+    SPIN_FLIP(s->spin[site.i]);
+    w->cluster_size = 1;
 
     while (1)
     {
         int n;
-
-        SPIN_FLIP(s->spin[site.i]);
-        w->flagged[site.i] = 0;
-        w->cluster_size++;
 
         /* loop over neighbors of site */
         for (n = 0; n < LT_Z; n++)
@@ -42,24 +34,19 @@ void wolff_update(lattice const *l, double p,
              * another that computes the coordinates. The latter is only
              * necessary if the neighbor site is to be added to the cluster.
              */
-            if (! lattice_neighbor(l, n, &site, top)) continue;
-
-            if (s->spin[top->i] == cluster_spin)
+            if (lattice_neighbor(l, n, &site, top) \
+                && (s->spin[top->i] == cluster_spin) \
+                && (RNG_COIN_TOSS(rand, p)))
             {
-                w->energy += 2;
+                /*
+                 * add neighbor to the cluster and push it onto the stack so
+                 * that its neighbors will be considered in the next iteration
+                 */
 
-                if ((! w->flagged[top->i]) && RNG_COIN_TOSS(rand, p))
-                {
-                    /*
-                     * add neighbor to the cluster and push it onto the stack so
-                     * that its neighbors will be considered on the next iteration
-                     */
-
-                    w->flagged[top->i] = 1;
-                    top++;
-                }
+                SPIN_FLIP(s->spin[top->i]);
+                w->cluster_size++;
+                top++;
             }
-            else w->energy -= 2;
         }
 
         if (top == w->stack) break;    /* done? */

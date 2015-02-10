@@ -11,19 +11,16 @@
 
 extern int const lt_shape[];    /* defined in lattice.c */
 
-typedef int64_t int_ord_N;
-typedef uint64_t uint_ord_N;
-
 typedef struct
 {
-    uint_ord_N i;
+    int i;
     int x[LT_D];
 }
 lattice_site;
 
 typedef struct
 {
-    uint_ord_N stride[LT_D];
+    int stride[LT_D];
     int axis[LT_Z];
     int diff[LT_Z][LT_LMAX];
 }
@@ -31,7 +28,7 @@ lattice;
 
 void lattice_init(lattice *l);
 
-void lattice_coords(lattice const *l, uint_ord_N i, int *x);
+void lattice_coords(lattice const *l, int i, int *x);
 
 void lattice_random_site(lattice const *l, rng *rand, lattice_site *site);
 
