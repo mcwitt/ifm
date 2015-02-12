@@ -1,37 +1,39 @@
-srcdir = @srcdir@
-dsfmt_dir = $(srcdir)/dSFMT-src-2.2.3
-VPATH = $(srcdir):$(dsfmt_dir)
+srcdir := @srcdir@
+VPATH := $(srcdir)
 
-CFLAGS += -std=c99 -I. -I$(srcdir)
-LDFLAGS = -lm
+CFLAGS := $(CFLAGS) -std=c99 -I. -I$(srcdir)
+LDFLAGS := -lm
 
-# optimization
-CFLAGS += -O3
+CFLAGS := $(CFLAGS) -O3
+#CFLAGS := $(CFLAGS) -g -fsanitize=address
 
-# for debugging
-#CFLAGS += -fsanitize=address
+OBJECTS = lattice.o neighbors.o state.o measure.o
 
-RNG = @RNG@
-
-ifeq ($(RNG), RNG_DSFMT)
-CFLAGS += -I$(dsfmt_dir) -DDSFMT_MEXP=19937 -DHAVE_SSE2
-all ifm wolff: dSFMT.o
+ifeq (@RNG@, RNG_DSFMT)
+dsfmt   := $(srcdir)/dSFMT-src-2.2.3
+CFLAGS  := $(CFLAGS) -I$(dsfmt) -DDSFMT_MEXP=19937 -DHAVE_SSE2
+DEPS    := $(DEPS) $(dsfmt)
+VPATH   := $(VPATH):$(dsfmt)
+OBJECTS := $(OBJECTS) dSFMT.o
 else
-LDFLAGS = -lgsl -lgslcblas
+LDFLAGS := $(LDFLAGS) -lgsl -lgslcblas
 endif
 
-all: ifm
-ifm: lattice.o neighbors.o state.o measure.o
-
-LOMEM = @LOMEM@
-RNG = @RNG@
-
-ifeq ($(LOMEM), 0)
-ifm: wolff.o
+ifeq (@LOMEM@, 0)
+OBJECTS := $(OBJECTS) wolff.o
 else
-CFLAGS += -DLOMEM
-ifm: wolff_lomem.o
+OBJECTS := $(OBJECTS) wolff_lomem.o
 endif
+
+all: $(DEPS) ifm
+
+$(dsfmt):
+	wget -N http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/$(@F:=.tar.gz)
+	tar -C $(@D) -xf $(@F:=.tar.gz) && $(RM) $(@F:=.tar.gz)
+
+ifm: $(OBJECTS)
+
+.PHONY: clean
 
 clean:
-	$(RM) *.o
+	$(RM) $(OBJECTS)

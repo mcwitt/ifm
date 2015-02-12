@@ -1,6 +1,7 @@
+#include "ifm.h"
 #include "state.h"
 
-#ifndef LOMEM
+#if (! LOMEM)
 #include "wolff.h"
 #else
 #include "wolff_lomem.h"
@@ -13,7 +14,7 @@ enum
 {
     M2 = 0,
     C,
-#ifndef LOMEM
+#if (! LOMEM)
     E,
     EM2,
 #endif

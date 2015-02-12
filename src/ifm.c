@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#ifndef LOMEM
+#if (! LOMEM)
 #include "wolff.h"
 #else
 #include "wolff_lomem.h"
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     wolff_init(&w);
     for (i = 0; i < LT_N; i++) s.spin[i] = SPIN_UP;
     s.magnetization = LT_N;
-#ifndef LOMEM
+#if (! LOMEM)
     w.energy = - 1ll * LT_N * LT_Z / 2;
 #endif
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
            "Temp", "Stage",
            "M2", "M4",
            "C", "C2");
-#ifndef LOMEM
+#if (! LOMEM)
     printf(" " \
            "%12s %12s " \
            "%12s %12s",
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
                     T, i,
                     ms.v[0][M2],  ms.v[1][M2],
                     ms.v[0][C],   ms.v[1][C]);
-#ifndef LOMEM
+#if (! LOMEM)
             printf(" " \
                    "%12g %12g " \
                    "%12g %12g",
