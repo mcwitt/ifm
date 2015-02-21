@@ -1,67 +1,69 @@
 #include "lattice.h"
-#include "neighbors.h"
-#include <string.h>
 
-/* define dimensions of the lattice */
-
-/* default: L x L x ... x L hypercube */
-int const lt_shape[LT_D] = {[0 ... LT_D-1] = LT_LMAX};
-
-static void init_strides(uint64_t *stride)
+static void init_strides(int const *shape, site_label *stride)
 {
     int d;
 
     stride[LT_D-1] = 1;
 
     for (d = LT_D-1; d > 0; d--)
-        stride[d-1] = lt_shape[d] * stride[d];
+        stride[d-1] = shape[d] * stride[d];
 }
 
-static void index2coords(int i, uint64_t const *stride, int *x)
+static void init_neighbors(int const *shape, int diff[][LT_LMAX])
 {
-    int d;
+    int d, l;
 
-    for (d = 0; d < LT_D-1; d++)
+#if (BC == BC_PERIODIC)
+#define DELTA(d) (shape[d] - 1)
+#elif (BC == BC_FREE)
+#define DELTA(d) 0
+#else
+#error invalid boundary condition
+#endif
+
+    /* forward neighbors */
+
+    for (d = 0; d < LT_D; d++)
     {
-        /* TODO check whether division and remainder are optimized to one
-         * instruction */
-        x[d] = i / stride[d];
-        i %= stride[d];
+        for (l = 0; l < shape[d]-1; l++) diff[d][l] = 1;
+        diff[d][shape[d]-1] = -DELTA(d);
     }
 
-    x[LT_D-1] = i;
-}
+    /* backward neighbors */
 
-void lattice_init(lattice *l)
+    for (d = 0; d < LT_D; d++)
+    {
+        int i = d + LT_D;
+        diff[i][0] = DELTA(d);
+        for (l = 1; l < shape[d]; l++) diff[i][l] = -1;
+    }
+
+#undef DELTA
+}
+void lattice_init(lattice *l, int *shape)
 {
-    init_strides(l->stride);
-    init_neighbors(l->axis, l->diff);
+    init_strides(shape, l->stride);
+    init_neighbors(shape, l->diff);
 }
 
-void lattice_coords(lattice const *l, uint64_t i, int *x)
+void neighbor_iter_init(site_label const site, neighbor_iter *iter)
 {
-    index2coords(i, l->stride, x);
+    iter->i = 0;
+    iter->site = site;
+    iter->r = site;
 }
 
-void lattice_random_site(lattice const *l, rng_state *rng, lattice_site *site)
+site_label neighbor_iter_next(lattice const *l, neighbor_iter *iter)
 {
-    site->i = (int) (LT_N * RNG_RAND_UNIFORM(rng));
-    lattice_coords(l, site->i, site->x);
+    int i = iter->i++;
+
+    if (i < LT_D)
+    {
+        iter->x[i] = iter->r / l->stride[i];
+        iter->r %= l->stride[i];
+        return iter->site + l->diff[i][iter->x[i]] * l->stride[i];
+    }
+
+    return iter->site + l->diff[i][iter->x[i-LT_D]] * l->stride[i-LT_D];
 }
-
-int lattice_neighbor(lattice const *l, int n,
-                     lattice_site const *restrict site,
-                     lattice_site *restrict neighbor)
-{
-    int axis = l->axis[n],
-        diff = l->diff[n][site->x[axis]];
-
-#if (BC != BC_PERIODIC)
-    if (diff == 0) return 0;   /* no neighbor */
-#endif
-    neighbor->i = site->i + diff * l->stride[axis];
-    memcpy(neighbor->x, site->x, sizeof site->x);
-    neighbor->x[axis] += diff;
-    return 1;
-}
-

@@ -16,17 +16,13 @@ void meas_accum(meas *sum, wolff const *w, state const *s)
     meas samp;
     int i, j;
     double m = (double) s->magnetization / LT_N,
-           c = (double) w->cluster_size / LT_N;
-#if (! LOMEM)
-    double en = (double) w->energy / LT_N;
-#endif
+           c = (double) w->cluster_size / LT_N,
+           en = (double) w->energy / LT_N;
 
     samp.v[0][M2] = m*m;
     samp.v[0][C] = c;
-#if (! LOMEM)
     samp.v[0][E] = en;
     samp.v[0][EM2] = en*m*m;
-#endif
 
     for (i = 0; i < NUM_MOMENTS; i++)
         for (j = 0; j < NUM_AVERAGES; j++)

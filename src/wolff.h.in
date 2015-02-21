@@ -11,7 +11,7 @@
 
 typedef struct
 {
-    lattice_site *stack;
+    site_label *stack;
     int *flagged;
     uint64_t cluster_size;
     int64_t energy;

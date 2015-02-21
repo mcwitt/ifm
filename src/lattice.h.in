@@ -1,39 +1,40 @@
 #ifndef LATTICE_H
 #define LATTICE_H
 
-#include "rng.h"
 #include <stdint.h>
 
 #define LT_D    @LT_D@
-#define LT_Z    (2*LT_D)
 #define LT_LMAX @LT_LMAX@
 #define LT_N    @LT_N@
 
-extern int const lt_shape[];    /* defined in lattice.c */
+#define BC_PERIODIC 0
+#define BC_FREE 1
+
+#define BC @BC@
+
+#define LT_Z (2*LT_D)
+
+typedef uint64_t site_label;
 
 typedef struct
 {
-    uint64_t i;
-    int x[LT_D];
-}
-lattice_site;
-
-typedef struct
-{
-    uint64_t stride[LT_D];
-    int axis[LT_Z];
+    int *shape;
+    site_label stride[LT_D];
     int diff[LT_Z][LT_LMAX];
 }
 lattice;
 
-void lattice_init(lattice *l);
+typedef struct
+{
+    int i, x[LT_D];
+    site_label site, r;
+}
+neighbor_iter;
 
-void lattice_coords(lattice const *l, uint64_t i, int *x);
+void lattice_init(lattice *l, int *shape);
 
-void lattice_random_site(lattice const *l, rng_state *rng, lattice_site *site);
+void neighbor_iter_init(site_label const site, neighbor_iter *iter);
 
-int lattice_neighbor(lattice const *l, int n,
-                     lattice_site const *restrict site,
-                     lattice_site *restrict neighbor);
+site_label neighbor_iter_next(lattice const *l, neighbor_iter *iter);
 
 #endif

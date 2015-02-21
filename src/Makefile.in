@@ -7,7 +7,7 @@ LDFLAGS := -lm
 CFLAGS := $(CFLAGS) -O3
 #CFLAGS := $(CFLAGS) -g -fsanitize=address
 
-OBJECTS = lattice.o neighbors.o state.o measure.o
+OBJECTS = lattice.o state.o measure.o wolff.o
 
 ifeq (@RNG@, RNG_DSFMT)
 dsfmt   := $(srcdir)/dSFMT-src-2.2.3
@@ -17,12 +17,6 @@ VPATH   := $(VPATH):$(dsfmt)
 OBJECTS := $(OBJECTS) dSFMT.o
 else
 LDFLAGS := $(LDFLAGS) -lgsl -lgslcblas
-endif
-
-ifeq (@LOMEM@, 0)
-OBJECTS := $(OBJECTS) wolff.o
-else
-OBJECTS := $(OBJECTS) wolff_lomem.o
 endif
 
 all: $(DEPS) ifm

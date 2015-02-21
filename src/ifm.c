@@ -4,16 +4,11 @@
 #include "rng.h"
 #include "spin.h"
 #include "state.h"
+#include "wolff.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-#if (! LOMEM)
-#include "wolff.h"
-#else
-#include "wolff_lomem.h"
-#endif
 
 /* probability to add a site to the cluster at a given temperature T */
 #define WOLFF_P_ADD(T)  (1. - exp(-2./(T)))
@@ -58,36 +53,30 @@ int main(int argc, char *argv[])
     meas ms;
     rng_state *rng;
     double T;
-    int i, seed;
+    int i, seed, shape[] = {[0 ... LT_D-1] = LT_LMAX};
 
     seed = (argc > 1) ? atoi(argv[1]) : time(NULL);
-    lattice_init(&l);
+    lattice_init(&l, shape);
 
     state_alloc(&s);
     wolff_init(&w);
     for (i = 0; i < LT_N; i++) s.spin[i] = SPIN_UP;
     s.magnetization = LT_N;
-#if (! LOMEM)
     w.energy = - 1ll * LT_N * LT_Z / 2;
-#endif
 
     rng = RNG_ALLOC();
     RNG_SEED(rng, seed);
 
     printf("%9s %6s " \
            "%12s %12s " \
-           "%12s %12s",
+           "%12s %12s " \
+           "%12s %12s " \
+           "%12s %12s\n",
            "Temp", "Stage",
            "M2", "M4",
-           "C", "C2");
-#if (! LOMEM)
-    printf(" " \
-           "%12s %12s " \
-           "%12s %12s",
+           "C", "C2",
            "E", "E2",
            "EM2", "E2M4");
-#endif
-    printf("\n");
 
     while (fscanf(stdin, "%lf", &T) != EOF)
     {
@@ -103,18 +92,15 @@ int main(int argc, char *argv[])
 
             printf("%9g %6d " \
                    "%12g %12g " \
-                   "%12g %12g",
+                   "%12g %12g " \
+                   "%12g %12g " \
+                   "%12g %12g\n",
                     T, i,
                     ms.v[0][M2],  ms.v[1][M2],
-                    ms.v[0][C],   ms.v[1][C]);
-#if (! LOMEM)
-            printf(" " \
-                   "%12g %12g " \
-                   "%12g %12g",
+                    ms.v[0][C],   ms.v[1][C],
                     ms.v[0][E],   ms.v[1][E],
                     ms.v[0][EM2], ms.v[1][EM2]);
-#endif
-            printf("\n");
+
             fflush(stdout);
         }
     }
