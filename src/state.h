@@ -11,7 +11,7 @@ typedef struct
 }
 state;
 
-void state_alloc(state *s);
+int state_alloc(state *s);
 void state_free(state *s);
 
 #endif

@@ -18,7 +18,7 @@ typedef struct
 }
 wolff;
 
-void wolff_init(wolff *w);
+int wolff_alloc(wolff *w);
 void wolff_free(wolff *w);
 
 void wolff_update(lattice const *l, double p,

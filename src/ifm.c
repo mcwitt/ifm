@@ -5,9 +5,11 @@
 #include "spin.h"
 #include "state.h"
 #include "wolff.h"
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 /* probability to add a site to the cluster at a given temperature T */
@@ -58,8 +60,13 @@ int main(int argc, char *argv[])
     seed = (argc > 1) ? atoi(argv[1]) : time(NULL);
     lattice_init(&l, shape);
 
-    state_alloc(&s);
-    wolff_init(&w);
+    if (state_alloc(&s) | wolff_alloc(&w))
+    {
+        int err = errno;
+        fprintf(stderr, "%s: %s\n", argv[0], strerror(err));
+        return EXIT_FAILURE;
+    }
+
     for (i = 0; i < LT_N; i++) s.spin[i] = SPIN_UP;
     s.magnetization = LT_N;
     w.energy = - 1ll * LT_N * LT_Z / 2;

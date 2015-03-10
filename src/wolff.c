@@ -2,10 +2,13 @@
 #include "spin.h"
 #include <stdlib.h>
 
-void wolff_init(wolff *w)
+int wolff_alloc(wolff *w)
 {
-    w->stack = malloc(MAX_STACK_SIZE * sizeof *w->stack);
-    w->flagged = calloc(LT_N, sizeof *w->flagged);
+    if ((w->stack = malloc(MAX_STACK_SIZE * sizeof *w->stack)) &&
+        (w->flagged = calloc(LT_N, sizeof *w->flagged)))
+        return 0;
+
+    return 1;   /* oops, couldn't allocate memory... */
 }
 
 void wolff_free(wolff *w)
