@@ -31,18 +31,15 @@ void wolff_update(lattice const *l, double p,
     while (1)
     {
         neighbor_iter iter;
-        int i;
 
         SPIN_FLIP(s->spin[site]);
         w->flagged[site] = 0;
         w->cluster_size++;
         neighbor_iter_init(site, &iter);
 
-        /* loop over neighbors of site */
-        for (i = 0; i < LT_Z; i++)
+        /* loop over neighbors */
+        while ((*top = neighbor_iter_next(l, &iter)) != -1)
         {
-            *top = neighbor_iter_next(l, &iter);
-
             if (s->spin[*top] == cluster_spin)
             {
                 w->energy += 2;

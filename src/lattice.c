@@ -1,5 +1,11 @@
 #include "lattice.h"
 
+#if (BC == BC_PERIODIC)
+#define DELTA(d) (shape[d] - 1)
+#else
+#define DELTA(d) 0
+#endif
+
 static void init_strides(int const *shape, site_label *stride)
 {
     int d;
@@ -13,14 +19,6 @@ static void init_strides(int const *shape, site_label *stride)
 static void init_neighbors(int const *shape, int diff[][LT_LMAX])
 {
     int d, l;
-
-#if (BC == BC_PERIODIC)
-#define DELTA(d) (shape[d] - 1)
-#elif (BC == BC_FREE)
-#define DELTA(d) 0
-#else
-#error invalid boundary condition
-#endif
 
     /* forward neighbors */
 
@@ -38,16 +36,15 @@ static void init_neighbors(int const *shape, int diff[][LT_LMAX])
         diff[i][0] = DELTA(d);
         for (l = 1; l < shape[d]; l++) diff[i][l] = -1;
     }
-
-#undef DELTA
 }
+
 void lattice_init(lattice *l, int *shape)
 {
     init_strides(shape, l->stride);
     init_neighbors(shape, l->diff);
 }
 
-void neighbor_iter_init(site_label const site, neighbor_iter *iter)
+void neighbor_iter_init(site_label site, neighbor_iter *iter)
 {
     iter->i = 0;
     iter->site = site;
@@ -56,14 +53,24 @@ void neighbor_iter_init(site_label const site, neighbor_iter *iter)
 
 site_label neighbor_iter_next(lattice const *l, neighbor_iter *iter)
 {
-    int i = iter->i++;
+    int i, dx;
 
-    if (i < LT_D)
+    while (iter->i < LT_D)
     {
+        i = iter->i++;
         iter->x[i] = iter->r / l->stride[i];
         iter->r %= l->stride[i];
-        return iter->site + l->diff[i][iter->x[i]] * l->stride[i];
+        dx = l->diff[i][iter->x[i]];
+        if (dx != 0) return iter->site + dx * l->stride[i];
     }
 
-    return iter->site + l->diff[i][iter->x[i-LT_D]] * l->stride[i-LT_D];
+    while (iter->i < LT_Z)
+    {
+        i = iter->i++;
+        dx = l->diff[i][iter->x[i-LT_D]];
+        if (dx != 0) return iter->site + dx * l->stride[i-LT_D];
+    }
+
+    return -1;
 }
+

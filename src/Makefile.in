@@ -5,7 +5,7 @@ CFLAGS := $(CFLAGS) -std=c99 -I. -I$(srcdir)
 LDFLAGS := -lm
 
 CFLAGS := $(CFLAGS) -O3
-#CFLAGS := $(CFLAGS) -g -fsanitize=address
+#CFLAGS := $(CFLAGS) -g -fsanitize=address,undefined
 
 OBJECTS = lattice.o state.o measure.o wolff.o
 

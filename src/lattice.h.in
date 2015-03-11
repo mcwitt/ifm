@@ -14,11 +14,26 @@
 
 #define LT_Z (2*LT_D)
 
-typedef uint64_t site_label;
+#if ((BC != BC_PERIODIC) && \
+     (BC != BC_FREE))
+#error invalid boundary condition
+#endif
+
+/*
+ * LT_E1 is the energy of the state with M=1
+ * on a hypercubic lattice with sides LT_LMAX
+ */
+
+#if (BC == BC_PERIODIC)
+#define LT_E1 (-1ll * LT_D * LT_N)
+#else
+#define LT_E1 (-1ll * LT_D * (LT_N - ((int) pow(LT_LMAX, LT_D-1))))
+#endif
+
+typedef int64_t site_label;
 
 typedef struct
 {
-    int *shape;
     site_label stride[LT_D];
     int diff[LT_Z][LT_LMAX];
 }
@@ -33,7 +48,7 @@ neighbor_iter;
 
 void lattice_init(lattice *l, int *shape);
 
-void neighbor_iter_init(site_label const site, neighbor_iter *iter);
+void neighbor_iter_init(site_label site, neighbor_iter *iter);
 
 site_label neighbor_iter_next(lattice const *l, neighbor_iter *iter);
 

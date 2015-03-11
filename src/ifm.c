@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < LT_N; i++) s.spin[i] = SPIN_UP;
     s.magnetization = LT_N;
-    w.energy = - 1ll * LT_N * LT_Z / 2;
+    w.energy =  LT_E1;
 
     rng = RNG_ALLOC();
     RNG_SEED(rng, seed);
