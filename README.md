@@ -1,16 +1,21 @@
-ifm: Monte Carlo simulation of Ising ferromagnets
+Monte Carlo simulation of Ising ferromagnets
 -------------------------------------------------------------------------------
+
+`ifm` is a simple and efficient implementation of the Wolff cluster algorithm
+([Wolff, 1989](http://dx.doi.org/10.1103%2FPhysRevLett.62.361))
+for Monte Carlo simulation of Ising ferromagnets. It is optimized for very
+large lattices and can handle billions of spins.
 
 Basic usage
 -------------------------------------------------------------------------------
 
-Simulation parameters are set before compilation to allow for the most
-effective optimization. Use the script `setup.sh` to prepare a build for a
-given set of parameters. Binaries with different sets of parameters should be
-built in separate directories.
+Simulation parameters are set before compilation to allow for effective
+optimization. Use the script `setup.sh` to prepare a build for a given set of
+parameters. Binaries with different sets of parameters should be built in
+separate directories.
 
-For example, to build a simulation of a 2-d model on a square lattice with
-periodic boundary conditions and linear size 64:
+For example, to build a simulation of a 2-d model on a 64x64 square lattice
+with periodic boundary conditions:
 
 ```bash
 mkdir -p build/d2-L64
@@ -44,9 +49,9 @@ __Basic parameters__
 
 __Advanced parameters__ (usually don't need adjustment)
 
- Parameter          | Type                      | Description
- ------------------ | ------------------------- | -----------
- `RNG`              | [see `rng.h.in` for list] | type of random number generator to use
- `UPDATES_PER_STEP` | integer                   | number of cluster updates per unit time
- `MAX_STACK_SIZE`   | integer                   | size of the stack used for cluster updates
+ Parameter          | Type                          | Description
+ ------------------ | ----------------------------- | -----------
+ `RNG`              | [see `rng.h.in` for values]   | type of random number generator to use
+ `UPDATES_PER_STEP` | integer                       | number of cluster updates per unit time
+ `MAX_STACK_SIZE`   | integer                       | size of the stack used for cluster updates
 
