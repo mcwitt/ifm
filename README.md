@@ -9,10 +9,10 @@ large lattices and can handle billions of spins.
 Basic usage
 -------------------------------------------------------------------------------
 
-Simulation parameters are set before compilation to allow for effective
-optimization. Use the script `setup.sh` to prepare a build for a given set of
-parameters. Binaries with different sets of parameters should be built in
-separate directories.
+Simulation parameters are set as static constants before compiling to allow for
+effective optimization. Use the script `setup.sh` to prepare a build for a
+given set of parameters. Binaries with different sets of parameters should be
+built in separate directories.
 
 For example, to build a simulation of a 2-d model on a 64x64 square lattice
 with periodic boundary conditions:

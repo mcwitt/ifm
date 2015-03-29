@@ -29,7 +29,7 @@ void meas_accum(meas *sum, wolff const *w, state const *s)
             sum->v[i][j] += pow(samp.v[0][j], i+1);
 }
 
-void meas_average(meas *sum, unsigned int t_meas)
+void meas_average(meas *sum, uint64_t t_meas)
 {
     int i, j;
 

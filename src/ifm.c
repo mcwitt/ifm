@@ -31,10 +31,10 @@ void thermalize(lattice *l, double p, int t_therm,
     for (i = 0; i < t_therm; i++) mc_step(l, p, rng, w, s);
 }
 
-void measure(lattice *l, double p, int t_meas,
+void measure(lattice *l, double p, uint64_t t_meas,
              rng_state *rng, wolff *w, state *s, meas *ms)
 {
-    int i;
+    uint64_t i;
 
     meas_reset(ms);
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     while (fscanf(stdin, "%lf", &T) != EOF)
     {
         double p = WOLFF_P_ADD(T);
-        int dt = pow(2, LOG_TIME_THERM);
+        uint64_t dt = pow(2, LOG_TIME_THERM);
 
         thermalize(&l, p, dt, rng, &w, &s);
 
