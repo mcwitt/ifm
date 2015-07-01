@@ -9,10 +9,10 @@ large lattices and can handle billions of spins.
 Basic usage
 -------------------------------------------------------------------------------
 
-Simulation parameters are set as static constants before compiling to allow for
-effective optimization. Use the script `setup.sh` to prepare a build for a
-given set of parameters. Binaries with different sets of parameters should be
-built in separate directories.
+Simulation parameters are defined as macro constants to allow for effective
+compiler optimization. Use the script `setup.sh` to prepare a build for a given
+set of parameters. Binaries with different sets of parameters should be built
+in separate directories.
 
 For example, to build a simulation of a 2-d model on a 64x64 square lattice
 with periodic boundary conditions:
@@ -29,13 +29,13 @@ random number generator. Temperatures are read from standard input. Typical
 usage looks like
 
 ```bash
-./ifm 123 < temps.txt > d2-L64-123.txt
+./ifm 123 < temps.txt > d2-L64-123.dat
 ```
 
 Parameters
 -------------------------------------------------------------------------------
 
-The following environment variables are understood by `setup.sh`:
+The following environment variables are used by `setup.sh`:
 
 __Basic parameters__
 
