@@ -21,8 +21,8 @@ void meas_accum(meas *sum, wolff const *w, state const *s)
 
     samp.v[0][M2] = m*m;
     samp.v[0][C] = c;
-    samp.v[0][E] = en;
-    samp.v[0][EM2] = en*m*m;
+    samp.v[0][U] = en;
+    samp.v[0][UM2] = en*m*m;
 
     for (i = 0; i < NUM_MOMENTS; i++)
         for (j = 0; j < NUM_AVERAGES; j++)

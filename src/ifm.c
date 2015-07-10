@@ -15,36 +15,54 @@
 /* probability to add a site to the cluster at a given temperature T */
 #define WOLFF_P_ADD(T)  (1. - exp(-2./(T)))
 
-/* Monte Carlo step (one unit of time) */
-void mc_step(lattice *l, double p, rng_state *rng, wolff *w, state *s)
+/* do Monte Carlo step and update number of spin flips */
+void mc_step(lattice *l,
+             double p,
+             rng_state *rng,
+             wolff *w,
+             state *s,
+             uint64_t *num_flips)
 {
     int i;
 
     for (i = 0; i < UPDATES_PER_STEP; i++)
+    {
         wolff_update(l, p, rng, w, s);
+        *num_flips += w->cluster_size;
+    }
 }
 
-void thermalize(lattice *l, double p, int t_therm,
-                rng_state *rng, wolff *w, state *s)
+/* get initial estimate of equilibrium cluster size for sweep calibration */
+double bootstrap(lattice *l, double p, uint64_t num_steps,
+                 rng_state *rng, wolff *w, state *s)
 {
-    int i;
-    for (i = 0; i < t_therm; i++) mc_step(l, p, rng, w, s);
+    uint64_t i, num_flips = 0;
+
+    for (i = 0; i < num_steps; i++)
+        mc_step(l, p, rng, w, s, &num_flips);
+
+    /* return mean steps per sweep */
+    return num_steps / ((double) num_flips/LT_N);
 }
 
-void measure(lattice *l, double p, uint64_t t_meas,
-             rng_state *rng, wolff *w, state *s, meas *ms)
+/* update and measure */
+double measure(lattice *l, double p, uint64_t num_steps,
+               rng_state *rng, wolff *w, state *s, meas *ms)
 {
-    uint64_t i;
+    uint64_t i, num_flips = 0;
 
     meas_reset(ms);
 
-    for (i = 0; i < t_meas; i++)
+    for (i = 0; i < num_steps; i++)
     {
-        mc_step(l, p, rng, w, s);
+        mc_step(l, p, rng, w, s, &num_flips);
         meas_accum(ms, w, s);
     }
 
-    meas_average(ms, t_meas);
+    meas_average(ms, num_steps);
+
+    /* return mean steps per sweep */
+    return num_steps / ((double) num_flips/LT_N);
 }
 
 int main(int argc, char *argv[])
@@ -74,30 +92,36 @@ int main(int argc, char *argv[])
     rng = RNG_ALLOC();
     RNG_SEED(rng, seed);
 
-    printf("%9s %6s " \
+    printf("%9s %12s " \
            "%12s %12s " \
            "%12s %12s " \
            "%12s %12s " \
            "%12s %12s\n",
-           "Temp", "Stage",
+           "Temp", "LogSweeps",
            "M2", "M4",
            "C", "C2",
-           "E", "E2",
-           "EM2", "E2M4");
+           "U", "U2",
+           "UM2", "U2M4");
 
-    while (fscanf(stdin, "%lf", &T) != EOF)
+    while (fscanf(stdin, "%lf", &T) != EOF) /* loop over temperatures */
     {
-        double p = WOLFF_P_ADD(T);
-        uint64_t dt = pow(2, LOG_TIME_THERM);
+        double steps_per_sweep, p = WOLFF_P_ADD(T);
+        uint64_t bootstrap_steps = pow(2, LOG_BOOTSTRAP_STEPS);
 
-        thermalize(&l, p, dt, rng, &w, &s);
+        /* estimate equilibrium cluster size */
+        steps_per_sweep = \
+            bootstrap(&l, p, bootstrap_steps, rng, &w, &s);
 
-        for (i = LOG_TIME_THERM; i < LOG_TIME_MEAS; i++)
+        /* update/measure loop */
+        for (i = LOG_BOOTSTRAP_STEPS; i <= LOG_MEAS_TIME; i++)
         {
-            dt = pow(2, i);
-            measure(&l, p, dt, rng, &w, &s, &ms);
+            uint64_t meas_sweeps = pow(2, i),
+                     meas_steps = meas_sweeps * steps_per_sweep;
 
-            printf("%9g %6d " \
+            steps_per_sweep = \
+                measure(&l, p, meas_steps, rng, &w, &s, &ms);
+
+            printf("%9g %12d " \
                    "%12g %12g " \
                    "%12g %12g " \
                    "%12g %12g " \
@@ -105,8 +129,8 @@ int main(int argc, char *argv[])
                     T, i,
                     ms.v[0][M2],  ms.v[1][M2],
                     ms.v[0][C],   ms.v[1][C],
-                    ms.v[0][E],   ms.v[1][E],
-                    ms.v[0][EM2], ms.v[1][EM2]);
+                    ms.v[0][U],   ms.v[1][U],
+                    ms.v[0][UM2], ms.v[1][UM2]);
 
             fflush(stdout);
         }

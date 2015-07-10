@@ -26,8 +26,8 @@ getp srcdir $srcdir
 getp BC BC_PERIODIC
 getp LT_LMAX 64
 getp LT_D 2
-getp LOG_TIME_THERM 3
-getp LOG_TIME_MEAS 10
+getp LOG_BOOTSTRAP_STEPS 3
+getp LOG_MEAS_TIME 8
 getp UPDATES_PER_STEP 1
 getp MAX_STACK_SIZE $((LT_LMAX**LT_D))
 getp RNG RNG_DSFMT

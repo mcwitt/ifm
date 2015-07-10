@@ -9,8 +9,8 @@ enum
 {
     M2 = 0,
     C,
-    E,
-    EM2,
+    U,
+    UM2,
 
     NUM_AVERAGES
 };
